@@ -25,8 +25,9 @@ Usage with CLion or Qt Creator:
   2. Additional command line arguments can be specified (see below)
 
 Usage with Makefiles, Visual Studio, etc. (see `cmake --help` for a complete list of generators):
-
-  1. `cd` to `cpp/build`
+  
+  1. `mkdir build`
+  2. `cd` to `build`
   3. Unix: run `cmake -G "Unix Makefiles" ..`
   3. Windows: run `cmake -G "Visual Studio 10" ..`
   

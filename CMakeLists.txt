@@ -5,6 +5,18 @@
 project(zxing)
 cmake_minimum_required(VERSION 2.8.0)
 
+
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+else()
+    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
+
 set(CMAKE_LIBRARY_PATH /opt/local/lib ${CMAKE_LIBRARY_PATH})
 
 # Check for polluted source tree.
@@ -70,8 +82,10 @@ add_executable(zxing ${ZXING_FILES})
 target_link_libraries(zxing libzxing)
 
 # Add testrunner executable.
+option(DISABLE_TESTS "Disable cppunit tests" OFF)
+
 find_package(CPPUNIT)
-if(CPPUNIT_FOUND)
+if(CPPUNIT_FOUND AND NOT DISABLE_TESTS)
     file(GLOB_RECURSE TESTRUNNER_FILES
         "./core/tests/src/*.cpp"
         "./core/tests/src/*.h"
@@ -80,5 +94,5 @@ if(CPPUNIT_FOUND)
     include_directories(${CPPUNIT_INCLUDE_DIR})
     target_link_libraries(testrunner libzxing  ${CPPUNIT_LIBRARIES})
 else()
-    message(WARNING "Not building testrunner, because CppUnit is missing")
+    message(WARNING "Not building testrunner, because CppUnit is missing or disabled")
 endif()

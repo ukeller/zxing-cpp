@@ -22,11 +22,12 @@
  */
 
 #include <vector>
+#include <cstring>
 
 #include <zxing/common/Counted.h>
 
 namespace zxing {
-
+    
 template<typename T> class Array : public Counted {
 protected:
 public:
@@ -69,7 +70,7 @@ public:
   T& operator[](int i) {
     return values_[i];
   }
-  int size() const {
+  typename std::vector<T>::size_type size() const {
     return values_.size();
   }
   bool empty() const {
@@ -82,16 +83,78 @@ public:
     return values_;
   }
 };
+    
+template<typename T> class Array_ : public Counted {
+public:
+    // copy allocates a new buffer the caller must free original buffer
+    // tansfer assigns buffer callee will free original buffer
+    // link assigns buffer caller must free original buffer
+    enum TransferType {COPY, TRANSFER, LINK};
 
+private:
+  T* const values_;
+  TransferType transfer;
+  const size_t size_;
+  inline T* copy_if_asked(T* a, size_t n, TransferType transfer) {
+      if (transfer == TransferType::COPY) {
+        T* r = new T[n];
+        r = static_cast<T*>(std::memcpy(r, a, n * sizeof(T)));
+        return r;
+    }
+    return a;
+  }
+protected:
+public:
+
+  Array_(): Array_(0) {}
+    
+  Array_(size_t n) : Array_(new T[n],n, TransferType::TRANSFER) {
+  }
+
+  Array_(T v, size_t n) : Array_(n) {
+    std::memset(values_, v, n);
+  }    
+  Array_(T* a, size_t n, TransferType transfer=TransferType::COPY): Counted(), transfer(transfer), values_(copy_if_asked(a,n,transfer)), size_(n) {
+        
+  }
+  virtual ~Array_() {
+      if (transfer!=TransferType::LINK && values_ != nullptr) {
+          delete [] values_;
+      }
+  }
+  T const& operator[](int i) const {
+    return values_[i];
+  }
+  T& operator[](int i) {
+    return values_[i];
+  }
+  size_t size() const {
+    return size_;
+  }
+  bool empty() const {
+    return size_== 0;
+  }
+  std::vector<T> const values() const {
+    return std::vector<T>(values_, values_+size_);
+  }
+};
+
+
+template<> class Array<char> : public Array_<char> {
+public:
+  using Array_<char>::Array_;
+  using Array_<char>::TransferType;
+};
+    
 template<typename T> class ArrayRef : public Counted {
 private:
 public:
   Array<T> *array_;
   ArrayRef() :
-      array_(0) {
+    ArrayRef(0) {
   }
   explicit ArrayRef(int n) :
-      array_(0) {
+      array_(0) {    
     reset(new Array<T> (n));
   }
   ArrayRef(T *ts, int n) :
