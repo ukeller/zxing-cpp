@@ -78,7 +78,8 @@ int read_image(Ref<LuminanceSource> source, bool hybrid, string expected) {
     } else {
       binarizer = new GlobalHistogramBinarizer(source);
     }
-    DecodeHints hints(DecodeHints::DEFAULT_HINT);
+    DecodeHints hints;//(DecodeHints::DEFAULT_HINT);
+    hints.addFormat(BarcodeFormat(BarcodeFormat::CODE_128));
     hints.setTryHarder(try_harder);
     Ref<BinaryBitmap> binary(new BinaryBitmap(binarizer));
     if (search_multi) {

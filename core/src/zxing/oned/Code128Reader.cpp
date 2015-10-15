@@ -203,20 +203,19 @@ vector<int> Code128Reader::findStartPattern(Ref<BitArray> row){
         }
         // Look for whitespace before start pattern, >= 50% of width of start pattern
         if (bestMatch >= 0 &&
-            row->isRange(std::max(0, patternStart - (i - patternStart) / 2), patternStart, false)) {
+            row->isRange(std::max(0, patternStart - (i - patternStart) / 4), patternStart, false)) {
           vector<int> resultValue (3, 0);
           resultValue[0] = patternStart;
           resultValue[1] = i;
           resultValue[2] = bestMatch;
           return resultValue;
         }
-        patternStart += counters[0] + counters[1];
-        for (int y = 2; y < patternLength; y++) {
-          counters[y - 2] = counters[y];
+        patternStart += counters[0];
+        for (int y = 1; y < patternLength; y++) {
+          counters[y - 1] = counters[y];
         }
-        counters[patternLength - 2] = 0;
         counters[patternLength - 1] = 0;
-        counterPosition--;
+
       } else {
         counterPosition++;
       }
@@ -442,7 +441,7 @@ Ref<Result> Code128Reader::decodeRow(int rowNumber, Ref<BitArray> row) {
   // to read off. Would be slightly better to properly read. Here we just skip it:
   nextStart = row->getNextUnset(nextStart);
   if (!row->isRange(nextStart,
-                    std::min(row->getSize(), nextStart + (nextStart - lastStart) / 2),
+                    std::min(row->getSize(), nextStart + (nextStart - lastStart) / 4),
                     false)) {
     throw NotFoundException();
   }

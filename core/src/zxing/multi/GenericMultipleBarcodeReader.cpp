@@ -101,6 +101,9 @@ void GenericMultipleBarcodeReader::doDecodeMultiple(Ref<BinaryBitmap> image,
     }
   }
 
+  if (!image->isCropSupported()) {
+    return;
+  }
   // Decode left of barcode
   if (minX > MIN_DIMENSION_TO_RECUR) {
     doDecodeMultiple(image->crop(0, 0, (int) minX, height), 
