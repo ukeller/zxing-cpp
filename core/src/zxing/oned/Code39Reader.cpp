@@ -131,9 +131,9 @@ Ref<Result> Code39Reader::decodeRow(int rowNumber, Ref<BitArray> row) {
     lastPatternSize += theCounters[i];
   }
   int whiteSpaceAfterEnd = nextStart - lastStart - lastPatternSize;
-  // If 50% of last pattern size, following last pattern, is not whitespace,
+  // If 25% of last pattern size, following last pattern, is not whitespace,
   // fail (but if it's whitespace to the very end of the image, that's OK)
-  if (nextStart != end && (whiteSpaceAfterEnd >> 1) < lastPatternSize) {
+  if (nextStart != end && whiteSpaceAfterEnd < lastPatternSize / 4 ) {
     throw NotFoundException();
   }
 
@@ -189,22 +189,20 @@ vector<int> Code39Reader::findAsteriskPattern(Ref<BitArray> row, vector<int>& co
       counters[counterPosition]++;
     } else {
       if (counterPosition == patternLength - 1) {
-        // Look for whitespace before start pattern, >= 50% of width of
+        // Look for whitespace before start pattern, >= 25% of width of
         // start pattern.
         if (toNarrowWidePattern(counters) == ASTERISK_ENCODING &&
-            row->isRange(std::max(0, patternStart - ((i - patternStart) >> 1)), patternStart, false)) {
+            row->isRange(std::max(0, patternStart - ((i - patternStart) / 4)), patternStart, false)) {
           vector<int> resultValue (2, 0);
           resultValue[0] = patternStart;
           resultValue[1] = i;
           return resultValue;
         }
-        patternStart += counters[0] + counters[1];
-        for (int y = 2; y < patternLength; y++) {
-          counters[y - 2] = counters[y];
+        patternStart += counters[0];
+        for (int y = 1; y < patternLength; y++) {
+          counters[y - 1] = counters[y];
         }
-        counters[patternLength - 2] = 0;
         counters[patternLength - 1] = 0;
-        counterPosition--;
       } else {
         counterPosition++;
       }

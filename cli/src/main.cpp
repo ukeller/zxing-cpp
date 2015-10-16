@@ -80,6 +80,7 @@ int read_image(Ref<LuminanceSource> source, bool hybrid, string expected) {
     }
     DecodeHints hints;//(DecodeHints::DEFAULT_HINT);
     hints.addFormat(BarcodeFormat(BarcodeFormat::CODE_128));
+    hints.addFormat(BarcodeFormat(BarcodeFormat::CODE_39));
     hints.setTryHarder(try_harder);
     Ref<BinaryBitmap> binary(new BinaryBitmap(binarizer));
     if (search_multi) {
