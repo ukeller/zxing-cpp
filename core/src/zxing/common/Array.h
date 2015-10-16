@@ -114,7 +114,7 @@ public:
   Array_(T v, size_t n) : Array_(n) {
     std::memset(values_, v, n);
   }    
-  Array_(T* a, size_t n, TransferType transfer=TransferType::COPY): Counted(), transfer(transfer), values_(copy_if_asked(a,n,transfer)), size_(n) {
+  Array_(T* a, size_t n, TransferType transfer=TransferType::COPY): Counted(), values_(copy_if_asked(a,n,transfer)), transfer(transfer), size_(n) {
         
   }
   virtual ~Array_() {

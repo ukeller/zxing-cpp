@@ -80,8 +80,8 @@ Ref<BitArray> GlobalHistogramBinarizer::getBlackRow(int y, Ref<BitArray> row) {
   int blackPoint = estimateBlackPoint(localBuckets);
   // std::cerr << "gbr bp " << y << " " << blackPoint << std::endl;
 
-  int left = localLuminances[0] & 0xff;
-  int center = localLuminances[1] & 0xff;
+  int left = width<=0 ? 0:localLuminances[0] & 0xff;
+  int center = width<=1 ? 0:localLuminances[1] & 0xff;
   for (int x = 1; x < width - 1; x++) {
     int right = localLuminances[x + 1] & 0xff;
     // A simple -1 4 -1 box filter with a weight of 2.
